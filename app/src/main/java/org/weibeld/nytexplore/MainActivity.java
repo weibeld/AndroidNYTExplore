@@ -28,6 +28,7 @@ import org.weibeld.nytexplore.databinding.ActivityMainBinding;
 import org.weibeld.nytexplore.model.ApiResponse;
 import org.weibeld.nytexplore.model.Doc;
 import org.weibeld.nytexplore.model.Multimedium;
+import org.weibeld.nytexplore.util.MyDate;
 import org.weibeld.nytexplore.util.Util;
 
 import java.util.ArrayList;
@@ -153,6 +154,9 @@ public class MainActivity extends AppCompatActivity {
 
             vh.tvTitle.setText(getSafeString(article.getHeadline().getMain()));
 
+            MyDate date = new MyDate(article.getPubDate());
+            vh.tvDate.setText(date.format1());
+
             ArrayList<Multimedium> multimedia = (ArrayList<Multimedium>) article.getMultimedia();
             String thumbUrl = "";
             for (Multimedium m : multimedia) {
@@ -178,14 +182,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            public ImageView ivThumb;
-            public TextView tvTitle;
+        class ViewHolder extends RecyclerView.ViewHolder {
+            ImageView ivThumb;
+            TextView tvDate;
+            TextView tvTitle;
 
             // Create a viewHolder for the passed view (item view)
-            public ViewHolder(View view) {
+            ViewHolder(View view) {
                 super(view);
                 ivThumb = (ImageView) view.findViewById(R.id.ivThumb);
+                tvDate = (TextView) view.findViewById(R.id.tvDate);
                 tvTitle = (TextView) view.findViewById(R.id.tvTitle);
             }
         }
