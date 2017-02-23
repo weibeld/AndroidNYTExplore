@@ -3,11 +3,14 @@ package org.weibeld.nytexplore;
 import android.app.Activity;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -27,6 +30,8 @@ import java.util.ArrayList;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static android.support.v7.widget.SearchView.OnQueryTextListener;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -56,12 +61,23 @@ public class MainActivity extends AppCompatActivity {
         mLayoutManager = new GridLayoutManager(this, 4, GridLayoutManager.VERTICAL, false);
         //mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         b.recyclerView.setLayoutManager(mLayoutManager);
+    }
 
-        b.btnFind.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate menu
+        getMenuInflater().inflate(R.menu.main, menu);
+
+        // Set up SearchView
+        MenuItem menuItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menuItem);
+
+        searchView.setOnQueryTextListener(new OnQueryTextListener() {
+            // Called when query is submitted (by pressing "Search" button on keyboard)
+            // Note: empty search queries detected by the SearchView itself and ignored
             @Override
-            public void onClick(View v) {
-                String searchTerm = b.etFind.getText().toString();
-                Call<ApiResponse> call = ApiServiceSingleton.getInstance().findArticles(searchTerm);
+            public boolean onQueryTextSubmit(String query) {
+                Call<ApiResponse> call = ApiServiceSingleton.getInstance().findArticles(query);
                 call.enqueue(new Callback<ApiResponse>() {
                     @Override
                     public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
@@ -69,20 +85,23 @@ public class MainActivity extends AppCompatActivity {
                         mArticles.clear();
                         mArticles.addAll(articles);
                         mAdapter.notifyDataSetChanged();
-                        for (Doc doc : mArticles) {
-                            if (doc.getHeadline() != null && doc.getHeadline().getMain() != null)
-                                Log.d(LOG_TAG, doc.getHeadline().getMain());
-                        }
                     }
                     @Override
                     public void onFailure(Call<ApiResponse> call, Throwable t) {
                     }
                 });
+                searchView.clearFocus();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
             }
         });
+
+        return super.onCreateOptionsMenu(menu);
     }
-
-
 
     public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHolder> {
 
