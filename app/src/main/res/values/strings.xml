@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">NYT Explore</string>
     <string name="action_search">Search</string>
+    <string name="toast_no_results">No articles found.</string>
+    <string name="action_filter">Filter</string>
+    <string name="progress_loading">Loading…</string>
 </resources>

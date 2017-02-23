@@ -1,6 +1,7 @@
 package org.weibeld.nytexplore;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.databinding.DataBindingUtil;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,6 +28,7 @@ import org.weibeld.nytexplore.databinding.ActivityMainBinding;
 import org.weibeld.nytexplore.model.ApiResponse;
 import org.weibeld.nytexplore.model.Doc;
 import org.weibeld.nytexplore.model.Multimedium;
+import org.weibeld.nytexplore.util.Util;
 
 import java.util.ArrayList;
 
@@ -46,14 +49,21 @@ public class MainActivity extends AppCompatActivity {
     ArticleAdapter mAdapter;
     RecyclerView.LayoutManager mLayoutManager;
 
+    ProgressDialog mProgressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         b = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         mActivity = this;
 
         mArticles = new ArrayList<Doc>();
+
+        mProgressDialog = new ProgressDialog(mActivity);
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setMessage(getString(R.string.progress_loading));
 
         // Set adapter for the RecyclerView
         mAdapter = new ArticleAdapter(mArticles);
@@ -82,17 +92,26 @@ public class MainActivity extends AppCompatActivity {
             // Note: empty search queries detected by the SearchView itself and ignored
             @Override
             public boolean onQueryTextSubmit(String query) {
+                mArticles.clear();
+                mAdapter.notifyItemRangeRemoved(0, mAdapter.getItemCount());
+                mProgressDialog.show();
                 Call<ApiResponse> call = ApiServiceSingleton.getInstance().findArticles(query);
                 call.enqueue(new Callback<ApiResponse>() {
                     @Override
                     public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                        if (mProgressDialog.isShowing()) mProgressDialog.dismiss();
+
                         ArrayList<Doc> articles = (ArrayList<Doc>) response.body().getResponse().getDocs();
+                        if (articles.isEmpty()) {
+                            Util.toast(mActivity, getString(R.string.toast_no_results));
+                        }
                         mArticles.clear();
                         mArticles.addAll(articles);
-                        mAdapter.notifyDataSetChanged();
+                        mAdapter.notifyItemRangeInserted(0, mArticles.size());
                     }
                     @Override
                     public void onFailure(Call<ApiResponse> call, Throwable t) {
+                        if (mProgressDialog.isShowing()) mProgressDialog.dismiss();
                     }
                 });
                 searchView.clearFocus();
