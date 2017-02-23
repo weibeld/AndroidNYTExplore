@@ -23,5 +23,11 @@ public interface ApiService {
     String API_IMAGE_BASE_URL = "http://www.nytimes.com/";
 
     @GET("articlesearch.json")
-    Call<ApiResponse> findArticles(@Query("q") String keyword);
+    Call<ApiResponse> findArticles(
+            @Query("q") String query,
+            @Query("fq") String filteredQuery,
+            @Query("begin_date") String beginDate,
+            @Query("end_date") String endDate,
+            @Query("sort") String sort,
+            @Query("page") Integer page);
 }

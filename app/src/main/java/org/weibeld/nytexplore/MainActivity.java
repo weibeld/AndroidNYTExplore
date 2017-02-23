@@ -1,6 +1,7 @@
 package org.weibeld.nytexplore;
 
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.databinding.DataBindingUtil;
 import android.graphics.Rect;
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
                 mArticles.clear();
                 mAdapter.notifyItemRangeRemoved(0, mAdapter.getItemCount());
                 mProgressDialog.show();
-                Call<ApiResponse> call = ApiServiceSingleton.getInstance().findArticles(query);
+                Call<ApiResponse> call = ApiServiceSingleton.getInstance().findArticles(query, null, null, null, null, null);
                 call.enqueue(new Callback<ApiResponse>() {
                     @Override
                     public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
@@ -134,6 +135,18 @@ public class MainActivity extends AppCompatActivity {
         });
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_filter:
+                DialogFragment newFragment = new FilterDialogFragment();
+                newFragment.show(getFragmentManager(), "filter");
+                return true;
+            default:
+                return false;
+        }
     }
 
     public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHolder> {

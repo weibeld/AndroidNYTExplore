@@ -4,4 +4,7 @@
     <string name="toast_no_results">No articles found.</string>
     <string name="action_filter">Filter</string>
     <string name="progress_loading">Loading…</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="filter_dialog_title">Filter</string>
 </resources>
