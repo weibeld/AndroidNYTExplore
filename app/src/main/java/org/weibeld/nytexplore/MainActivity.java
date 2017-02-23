@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -104,15 +105,22 @@ public class MainActivity extends AppCompatActivity {
 
                         ArrayList<Doc> articles = (ArrayList<Doc>) response.body().getResponse().getDocs();
                         if (articles.isEmpty()) {
-                            Util.toast(mActivity, getString(R.string.toast_no_results));
+                            Util.toastLong(mActivity, getString(R.string.toast_no_results));
                         }
                         mArticles.clear();
                         mArticles.addAll(articles);
+                        Log.v(LOG_TAG, "Number of newly fetched articles: " + mArticles.size());
                         mAdapter.notifyItemRangeInserted(0, mArticles.size());
                     }
                     @Override
                     public void onFailure(Call<ApiResponse> call, Throwable t) {
                         if (mProgressDialog.isShowing()) mProgressDialog.dismiss();
+                        // TODO: check for SocketTimeoutException (if connection is slow)
+                        // TODO: check for UnknownHostException (if there is no Internet connection)
+                        String msg = "Query failed: " + t.getClass().getSimpleName();
+                        Util.toastLong(mActivity, msg);
+                        Log.v(LOG_TAG, msg);
+                        t.printStackTrace();
                     }
                 });
                 searchView.clearFocus();
@@ -154,8 +162,13 @@ public class MainActivity extends AppCompatActivity {
 
             vh.tvTitle.setText(getSafeString(article.getHeadline().getMain()));
 
-            MyDate date = new MyDate(article.getPubDate());
-            vh.tvDate.setText(date.format1());
+            if (article.getPubDate() != null) {
+                vh.tvDate.setVisibility(View.VISIBLE);
+                MyDate date = new MyDate(article.getPubDate());
+                vh.tvDate.setText(date.format1());
+            }
+            else
+                vh.tvDate.setVisibility(View.GONE);
 
             ArrayList<Multimedium> multimedia = (ArrayList<Multimedium>) article.getMultimedia();
             String thumbUrl = "";

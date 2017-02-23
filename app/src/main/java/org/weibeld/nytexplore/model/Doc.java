@@ -22,7 +22,12 @@ public class Doc {
     private String newsDesk;
     private String sectionName;
     private String subsectionName;
-    private Byline byline;
+
+    // The byline object does sometimes not conform to the specification: it is sometimes an
+    // empty array [] instead of an object {}. If this is the case, the Retrofit call fails
+    // (calls onFailure rather than onResponse). By removing the byline field from the model,
+    // this problem can be bypassed.
+    //private Byline byline;
     private String typeOfMaterial;
     private String id;
     private Object wordCount;
@@ -149,13 +154,13 @@ public class Doc {
         this.subsectionName = subsectionName;
     }
 
-    public Byline getByline() {
-        return byline;
-    }
-
-    public void setByline(Byline byline) {
-        this.byline = byline;
-    }
+//    public Byline getByline() {
+//        return byline;
+//    }
+//
+//    public void setByline(Byline byline) {
+//        this.byline = byline;
+//    }
 
     public String getTypeOfMaterial() {
         return typeOfMaterial;
