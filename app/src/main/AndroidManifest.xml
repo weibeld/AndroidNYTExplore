@@ -12,11 +12,12 @@
         android:theme="@style/AppTheme"
         android:name=".debug.NytExploreApplication">
 
+        <meta-data
+            android:name="org.weibeld.nytexplore.debug.StethoOkHttpGlideModule"
+            android:value="GlideModule" />
+
         <activity android:name=".MainActivity">
             <!-- Custom GlideModule to make Glide use an OkHttp client with Stetho interception -->
-            <meta-data
-                android:name="org.weibeld.nytexplore.debug.StethoOkHttpGlideModule"
-                android:value="GlideModule" />
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
