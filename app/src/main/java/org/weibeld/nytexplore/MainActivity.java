@@ -2,12 +2,14 @@ package org.weibeld.nytexplore;
 
 import android.app.Activity;
 import android.databinding.DataBindingUtil;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,9 +60,12 @@ public class MainActivity extends AppCompatActivity {
         b.recyclerView.setAdapter(mAdapter);
 
         // Set LayoutManager for the RecyclerView
-        mLayoutManager = new GridLayoutManager(this, 4, GridLayoutManager.VERTICAL, false);
-        //mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        //mLayoutManager = new GridLayoutManager(this, 4, GridLayoutManager.VERTICAL, false);
+        mLayoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
         b.recyclerView.setLayoutManager(mLayoutManager);
+
+        SpacesItemDecoration decoration = new SpacesItemDecoration(16);
+        b.recyclerView.addItemDecoration(decoration);
     }
 
     @Override
@@ -71,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         // Set up SearchView
         MenuItem menuItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menuItem);
-
+        searchView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         searchView.setOnQueryTextListener(new OnQueryTextListener() {
             // Called when query is submitted (by pressing "Search" button on keyboard)
             // Note: empty search queries detected by the SearchView itself and ignored
@@ -166,5 +171,32 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+
+    /*
+
+    Decorator which adds spacing around the tiles in a Grid layout RecyclerView. Apply to a RecyclerView with:
+        SpacesItemDecoration decoration = new SpacesItemDecoration(16);
+        mRecyclerView.addItemDecoration(decoration);
+
+    Feel free to add any value you wish for SpacesItemDecoration. That value determines the amount of spacing.
+    Source: http://blog.grafixartist.com/pinterest-masonry-layout-staggered-grid/
+    */
+    public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
+        private final int mSpace;
+        public SpacesItemDecoration(int space) {
+            this.mSpace = space;
+        }
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+            outRect.left = mSpace;
+            outRect.right = mSpace;
+            outRect.bottom = mSpace;
+            outRect.top = mSpace;
+            // Add top margin only for the first item to avoid double space between items
+//            if (parent.getChildAdapterPosition(view) == 0)
+//                outRect.top = mSpace;
+        }
     }
 }
