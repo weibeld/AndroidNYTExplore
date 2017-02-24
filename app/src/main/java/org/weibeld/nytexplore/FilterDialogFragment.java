@@ -4,12 +4,15 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
@@ -18,6 +21,7 @@ import android.widget.TextView;
 
 import org.weibeld.nytexplore.databinding.DialogFilterBinding;
 import org.weibeld.nytexplore.util.MyDate;
+import org.weibeld.nytexplore.util.Util;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -38,41 +42,84 @@ public class FilterDialogFragment extends DialogFragment {
 
         b = DataBindingUtil.inflate(LayoutInflater.from(getActivity()), R.layout.dialog_filter, null, false);
 
-        setupDateFilter(b.cbBeginDate, b.tvBeginDate, b.etBeginDate, TAG_BEGIN_DATE);
-        setupDateFilter(b.cbEndDate, b.tvEndDate, b.etEndDate, TAG_END_DATE);
+        setupDateFilter(b.cbBeginDate, b.tvBeginDate, b.etBeginDate, TAG_BEGIN_DATE, getString(R.string.pref_key_begin_date));
+        setupDateFilter(b.cbEndDate, b.tvEndDate, b.etEndDate, TAG_END_DATE, getString(R.string.pref_key_end_date));
 
-        // Use the Builder class for convenient dialog construction
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder
+        final AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setView(b.getRoot())
-                .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // FIRE ZE MISSILES!
-                    }
-                })
+                .setPositiveButton(R.string.save, null)
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
+                    public void onClick(DialogInterface dialog, int id) {}
+                }).create();
+
+        // Override the setPositiveButton method in order to prevent automatic dismissal of dialog
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface d) {
+                Button button = ((AlertDialog) d).getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // Read all values and save in SharedPreferences
+                        SharedPreferences pref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences.Editor e = pref.edit();
+
+                        if (!saveDate(b.cbBeginDate, b.etBeginDate, getString(R.string.pref_key_begin_date), e))
+                            return;
+
+                        if (!saveDate(b.cbEndDate, b.etEndDate, getString(R.string.pref_key_end_date), e))
+                            return;
+
+                        dialog.dismiss();
+                    }
+
+                    // Save begin or end date as a string in the SharedPreferences (format YYYYMMDD
+                    // or empty string if this filter is not set).
+                    private boolean saveDate(CheckBox cb, EditText et, String prefKey, SharedPreferences.Editor prefEdit) {
+                        if (cb.isChecked()) {
+                            if (et.getTag() == null) {
+                                et.requestFocus();
+                                Util.toast(getActivity(), "Please select a date.");
+                                return false;
+                            }
+                            MyDate beginDate = (MyDate) et.getTag();
+                            prefEdit.putString(prefKey, beginDate.format4());
+                        }
+                        else {
+                            prefEdit.putString(prefKey, "");
+                        }
+                        prefEdit.apply();
+                        return true;
                     }
                 });
+            }
+        });
+
         // Create the AlertDialog object and return it
-        return builder.create();
+        return dialog;
     }
 
-    private void showDatePicker(String tag) {
-        (new DatePickerDialogFragment()).show(getFragmentManager(), tag);
-    }
-
-    private void setupDateFilter(final CheckBox cb, TextView tv, final EditText et, final String tag) {
+    private void setupDateFilter(final CheckBox cb, TextView tv, final EditText et, final String tag, String prefKey) {
 
         // Make EditText non-editable
         et.setKeyListener(null);
 
-        // Set initial visibility of EditText
-        if (cb.isChecked())
-            et.setVisibility(View.VISIBLE);
-        else
+        // Read current value for this filter from SharedPreferences
+        SharedPreferences pref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        String val = pref.getString(prefKey, "");
+
+        // Set initial states of CheckBox and EditText
+        if (val.isEmpty()) {
+            cb.setChecked(false);
             et.setVisibility(View.GONE);
+        }
+        else {
+            cb.setChecked(true);
+            et.setVisibility(View.VISIBLE);
+            MyDate date = new MyDate(val);
+            et.setText(date.format3());
+            et.setTag(date);
+        }
 
         // Detect clicks on the right compound drawable of EditText. If clicked, show date picker
         et.setOnTouchListener(new View.OnTouchListener() {
@@ -116,6 +163,10 @@ public class FilterDialogFragment extends DialogFragment {
                 cb.toggle();
             }
         });
+    }
+
+    private void showDatePicker(String tag) {
+        (new DatePickerDialogFragment()).show(getFragmentManager(), tag);
     }
 
 

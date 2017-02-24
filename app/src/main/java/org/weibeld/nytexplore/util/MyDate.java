@@ -16,29 +16,45 @@ import java.util.regex.Pattern;
 public class MyDate {
     // Regex matching strings starting with a YYYY-MM-DD date (format of dates in API JSON response)
     private static final Pattern mApiJsonPattern = Pattern.compile("^(\\d{4}-\\d{2}-\\d{2}).*");
+    private static final Pattern mApiHttpPattern = Pattern.compile("^\\d{8}$");
+
     // Format for parsing the YYYY-MM-DD date that was extracted with above pattern
     private static final SimpleDateFormat mApiJsonDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+    private static final SimpleDateFormat mApiHttpDateFormat = new SimpleDateFormat("yyyyMMdd", Locale.US);
 
     // Output date formats
     private static final SimpleDateFormat mOutFormat1 = new SimpleDateFormat("d MMM. yyyy", Locale.US);
-    private static final SimpleDateFormat mOutFormat3 = new SimpleDateFormat("EEE d MMM. yyyy", Locale.US);
+    private static final SimpleDateFormat mOutFormat3 = new SimpleDateFormat("EEE. d MMM. yyyy", Locale.US);
     private static final SimpleDateFormat mOutFormat2 = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+    private static final SimpleDateFormat mOutFormat4 = new SimpleDateFormat("yyyyMMdd", Locale.US);
 
 
     private Date mDate;
 
     /**
-     * Create a MyDate object by passing a string starting with a YYYY-MM-DD date (this is the
-     * format of dates in the JSON response of the API).
+     * Create a MyDate object by passing a string starting of one of the following formats:
+     * - Starting with "YYYY-MM-DD" (date format of JSON response from API)
+     * - "YYYYMMDD" (date format of HTTP requests for API)
      */
 
     public MyDate(String str) {
-        Matcher matcher = mApiJsonPattern.matcher(str);
+        Matcher matcher;
+        matcher = mApiJsonPattern.matcher(str);
         if (matcher.find()) {
             try {
                 mDate = mApiJsonDateFormat.parse(matcher.group(1));
             } catch (ParseException e) {
                 e.printStackTrace();
+            }
+        }
+        else {
+            matcher = mApiHttpPattern.matcher(str);
+            if (matcher.find()) {
+                try {
+                    mDate = mApiHttpDateFormat.parse(matcher.group());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -65,6 +81,10 @@ public class MyDate {
 
     public String format3() {
         return format(mOutFormat3);
+    }
+
+    public String format4() {
+        return format(mOutFormat4);
     }
 
     private String format(SimpleDateFormat f) {
