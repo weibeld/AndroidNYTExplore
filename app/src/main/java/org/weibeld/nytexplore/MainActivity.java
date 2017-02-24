@@ -3,6 +3,7 @@ package org.weibeld.nytexplore;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
@@ -17,6 +18,7 @@ import org.weibeld.nytexplore.adapter.ArticleAdapter;
 import org.weibeld.nytexplore.api.ApiServiceSingleton;
 import org.weibeld.nytexplore.databinding.ActivityMainBinding;
 import org.weibeld.nytexplore.decor.SpacesItemDecoration;
+import org.weibeld.nytexplore.dialog.FilterDialogFragment;
 import org.weibeld.nytexplore.model.ApiResponse;
 import org.weibeld.nytexplore.model.Doc;
 import org.weibeld.nytexplore.util.Util;
@@ -36,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG_FILTER_DIALOG = "filter";
 
     Activity mActivity;
+    SharedPreferences mPref;
     ActivityMainBinding b;
 
     ArrayList<Doc> mArticles;
@@ -48,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         b = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         mActivity = this;
+        mPref = getPreferences(MODE_PRIVATE);
         mArticles = new ArrayList<>();
         mProgressDialog = setupProgressDialog();
         mAdapter = new ArticleAdapter(mArticles, this);
@@ -97,7 +101,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 mAdapter.clear();
-                query(query, null, null, null, null, null);
+
+                String beginDate = mPref.getString(getString(R.string.pref_key_begin_date), "");
+                String endDate = mPref.getString(getString(R.string.pref_key_end_date), "");
+                beginDate = (beginDate.isEmpty()) ? null : beginDate;
+                endDate = (endDate.isEmpty()) ? null : endDate;
+
+                query(query, null, beginDate, endDate, null, null);
                 searchView.clearFocus();
                 return true;
             }
