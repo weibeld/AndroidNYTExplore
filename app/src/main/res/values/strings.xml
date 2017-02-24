@@ -7,4 +7,7 @@
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="filter_dialog_title">Filter</string>
+    <string name="dialog_title">Filters</string>
+    <string name="dialog_sub_begin_date">Not older than…</string>
+    <string name="dialog_sub_end_date">Not newer than…</string>
 </resources>
