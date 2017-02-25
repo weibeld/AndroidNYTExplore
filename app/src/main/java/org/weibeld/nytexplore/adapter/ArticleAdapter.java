@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import org.weibeld.nytexplore.R;
 import org.weibeld.nytexplore.api.ApiService;
@@ -65,7 +66,12 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHold
                 break;
             }
         }
-        Glide.with(mContext).load(thumbUrl).into(vh.ivThumb);
+        // TODO: Glide seems to not cache most of these images but load them from the URL each time
+        Glide.with(mContext)
+                .load(thumbUrl)
+                // Save original image in cache (less fetching from server)
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                .into(vh.ivThumb);
 
     }
 
