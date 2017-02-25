@@ -8,9 +8,11 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -37,13 +39,19 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String TAG_FILTER_DIALOG = "filter";
 
+    // General
     Activity mActivity;
     SharedPreferences mPref;
     ActivityMainBinding b;
 
+    // RecyclerView
     ArrayList<Doc> mArticles;
     ArticleAdapter mAdapter;
     ProgressDialog mProgressDialog;
+    EndlessRecyclerViewScrollListener mScrollListener;
+
+    // API requests
+    String mQuery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,9 +65,17 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new ArticleAdapter(mArticles, this);
 
         // Set up RecyclerView
+        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
+        mScrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                loadData(page);
+            }
+        };
         b.recyclerView.setAdapter(mAdapter);
-        b.recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
+        b.recyclerView.setLayoutManager(layoutManager);
         b.recyclerView.addItemDecoration(new SpacesItemDecoration(16));
+        b.recyclerView.addOnScrollListener(mScrollListener);
 
         //query("Clinton", null, null, null, null, null);
     }
@@ -91,6 +107,18 @@ public class MainActivity extends AppCompatActivity {
         return p;
     }
 
+    private void loadData(int page) {
+        String beginDate = mPref.getString(getString(R.string.pref_key_begin_date), "");
+        String endDate = mPref.getString(getString(R.string.pref_key_end_date), "");
+        beginDate = (beginDate.isEmpty()) ? null : beginDate;
+        endDate = (endDate.isEmpty()) ? null : endDate;
+
+        // News desk format:
+        // fq=news_desk:("Education"%20"Health") --> no query ("q") necessary)
+
+        query(mQuery, null, beginDate, endDate, null, page);
+    }
+
     private void setupSearchView(Menu menu) {
         MenuItem menuItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menuItem);
@@ -101,13 +129,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 mAdapter.clear();
-
-                String beginDate = mPref.getString(getString(R.string.pref_key_begin_date), "");
-                String endDate = mPref.getString(getString(R.string.pref_key_end_date), "");
-                beginDate = (beginDate.isEmpty()) ? null : beginDate;
-                endDate = (endDate.isEmpty()) ? null : endDate;
-
-                query(query, null, beginDate, endDate, null, null);
+                mScrollListener.resetState();
+                mQuery = query;
+                loadData(0);
+                loadData(1);
                 searchView.clearFocus();
                 return true;
             }
@@ -125,6 +150,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 mProgressDialog.dismiss();
+                // API rate limits: 1000 requests per day, 1 request per second (check X-RateLimit
+                // fields in HTTP response).
+                if (response.code() == 429) {
+                    Log.v(LOG_TAG, response.code() + ": rate limit exceeded");
+                    return;
+                }
                 try {
                     ArrayList<Doc> articles = (ArrayList<Doc>) response.body().getResponse().getDocs();
                     if (articles.isEmpty())
