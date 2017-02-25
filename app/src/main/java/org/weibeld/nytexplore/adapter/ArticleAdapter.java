@@ -66,12 +66,15 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHold
                 break;
             }
         }
-        // TODO: Glide seems to not cache most of these images but load them from the URL each time
-        Glide.with(mContext)
-                .load(thumbUrl)
-                // Save original image in cache (less fetching from server)
-                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                .into(vh.ivThumb);
+        if (!thumbUrl.isEmpty())
+            // TODO: Glide seems to not cache most of these images but load them from the URL each time
+            Glide.with(mContext)
+                    .load(thumbUrl)
+                    // Save original image in cache (less fetching from server)
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                    .placeholder(R.drawable.placeholder_thumb)
+                    .error(R.drawable.error_thumb)
+                    .into(vh.ivThumb);
 
     }
 
