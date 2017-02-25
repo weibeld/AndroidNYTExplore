@@ -8,9 +8,9 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
@@ -65,8 +65,11 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new ArticleAdapter(mArticles, this);
 
         // Set up RecyclerView
-        //StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
+        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
+        // With GAP_HANDLING_NONE, no reshuffling of items ot top of list (when scrolling back),
+        // but possible gap (with default gap handling strategy it's the reverse)
+        //layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
+        //GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
         mScrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
@@ -150,7 +153,6 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
-                mProgressDialog.dismiss();
                 // API rate limits: 1000 requests per day, 1 request per second (check X-RateLimit
                 // fields in HTTP response).
                 if (response.code() == 429) {
@@ -167,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 catch (NullPointerException e) {
                     fail(e);
                 }
+                mProgressDialog.dismiss();
             }
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
