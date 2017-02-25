@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
             // Note: empty search queries detected by the SearchView itself and ignored
             @Override
             public boolean onQueryTextSubmit(String query) {
-                mAdapter.clear();
+                mAdapter.clearArticles();
                 mScrollListener.resetState();
                 mQuery = query;
                 loadData(0);
@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
                     if (articles.isEmpty())
                         Util.toastLong(mActivity, getString(R.string.toast_no_results));
                     else
-                        mAdapter.append(articles);
+                        mAdapter.appendArticles(articles);
                 }
                 catch (NullPointerException e) {
                     fail(e);

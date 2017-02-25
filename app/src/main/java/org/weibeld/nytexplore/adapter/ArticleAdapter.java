@@ -81,14 +81,15 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHold
             return str;
     }
 
-    public void clear() {
+    public void clearArticles() {
         mData.clear();
         notifyItemRangeRemoved(0, getItemCount());
     }
 
-    public void append(List<Doc> articles) {
+    public void appendArticles(List<Doc> articles) {
+        int oldSize = getItemCount();
         mData.addAll(articles);
-        notifyItemRangeInserted(mData.size() - 1, articles.size());
+        notifyItemRangeInserted(oldSize, articles.size());
     }
 
 
