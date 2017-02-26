@@ -170,7 +170,12 @@ public class FilterDialogFragment extends DialogFragment {
         });
 
         // Check/uncheck checkbox when title to the right of it is clicked
-        b.tvSortOrder.setOnClickListener(v -> b.cbSortOrder.toggle());
+        b.tvSortOrder.setOnClickListener(v -> {
+            if (b.cbSortOrder.isChecked())
+                toggleVisibility(b.rgSortOrder);
+//            else
+//                b.cbSortOrder.toggle();
+        });
 
     }
 
@@ -225,7 +230,19 @@ public class FilterDialogFragment extends DialogFragment {
         });
 
         // Check/uncheck checkbox when title to the right of it is clicked
-        tv.setOnClickListener(v -> cb.toggle());
+        tv.setOnClickListener(v -> {
+            if (cb.isChecked())
+                toggleVisibility(et);
+//            else
+//                cb.toggle();
+        });
+    }
+
+    private void toggleVisibility(View v) {
+        if (v.getVisibility() == View.VISIBLE)
+            v.setVisibility(View.GONE);
+        else if (v.getVisibility() == View.GONE)
+            v.setVisibility(View.VISIBLE);
     }
 
     private void showDatePicker(String tag) {
