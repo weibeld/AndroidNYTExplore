@@ -12,5 +12,6 @@
     <string name="dialog_sub_end_date">Not newer than…</string>
     <string name="pref_key_begin_date">pref_begin_date</string>
     <string name="pref_key_end_date">pref_end_date</string>
+    <string name="pref_key_sort_order">pref_sort_order</string>
     <string name="title_detail_activity">Read Article</string>
 </resources>

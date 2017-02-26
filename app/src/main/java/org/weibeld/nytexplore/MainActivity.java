@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         b.recyclerView.addOnScrollListener(mScrollListener);
 
         RecyclerViewItemClickSupport.addTo(b.recyclerView).setOnItemClickListener((recyclerView, position, v) -> {
+            // TODO: pass Doc object instead of only URL (make DOC extend Parcelable)
             Intent intent = new Intent(mActivity, DetailActivity.class);
             intent.putExtra(EXTRA_ARTICLE_URL, mArticles.get(position).getWebUrl());
             startActivity(intent);
@@ -121,16 +122,21 @@ public class MainActivity extends AppCompatActivity {
         return p;
     }
 
+    // Read filters from SharedPreferences, and construct and execute the API query
     private void loadData(int page) {
+        // Begin/end date
         String beginDate = mPref.getString(getString(R.string.pref_key_begin_date), "");
         String endDate = mPref.getString(getString(R.string.pref_key_end_date), "");
         beginDate = (beginDate.isEmpty()) ? null : beginDate;
         endDate = (endDate.isEmpty()) ? null : endDate;
+        // Sort order
+        String sortOrder = mPref.getString(getString(R.string.pref_key_sort_order), "");
+        sortOrder = (sortOrder.isEmpty()) ? null : sortOrder;
 
         // News desk format:
         // fq=news_desk:("Education"%20"Health") --> no query ("q") necessary)
 
-        query(mQuery, null, beginDate, endDate, null, page);
+        query(mQuery, null, beginDate, endDate, sortOrder, page);
     }
 
     private void setupSearchView(Menu menu) {

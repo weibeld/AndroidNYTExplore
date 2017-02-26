@@ -73,6 +73,38 @@
                     android:drawableRight="@drawable/ic_event_black_24dp"
                     />
 
+                <!-- ******************************************************************************* -->
+                <!-- Sort order                                                                      -->
+                <!-- ******************************************************************************* -->
+                <LinearLayout
+                    style="@style/FilterDialogSubtitleLayout">
+                    <CheckBox
+                        android:id="@+id/cbSortOrder"
+                        style="@style/FilterDialogCheckBox"
+                        />
+                    <TextView
+                        android:id="@+id/tvSortOrder"
+                        style="@style/FilterDialogSubtitle"
+                        android:text="Sort chronologically"
+                        />
+                </LinearLayout>
+                <RadioGroup
+                    android:id="@+id/rgSortOrder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <RadioButton android:id="@+id/rbSortOrderNewest"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Newest first"
+                        />
+                    <RadioButton android:id="@+id/rbSortOrderOldest"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Oldest first"
+                        />
+                </RadioGroup>
+
 
             </LinearLayout>
 
