@@ -16,7 +16,6 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import org.weibeld.nytexplore.adapter.ArticleAdapter;
 import org.weibeld.nytexplore.api.ApiServiceSingleton;
@@ -41,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
+    public static final String EXTRA_ARTICLE_URL = "ArticleUrl";
     public static final String TAG_FILTER_DIALOG = "filter";
 
     // General
@@ -85,16 +85,13 @@ public class MainActivity extends AppCompatActivity {
         b.recyclerView.addItemDecoration(new SpacesItemDecoration(16));
         b.recyclerView.addOnScrollListener(mScrollListener);
 
-        RecyclerViewItemClickSupport.addTo(b.recyclerView).setOnItemClickListener(new RecyclerViewItemClickSupport.OnItemClickListener() {
-            @Override
-            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                Intent intent = new Intent(mActivity, DetailActivity.class);
-                intent.putExtra(getString(R.string.EXTRA_ARTICLE_URL), mArticles.get(position).getWebUrl());
-                startActivity(intent);
-            }
+        RecyclerViewItemClickSupport.addTo(b.recyclerView).setOnItemClickListener((recyclerView, position, v) -> {
+            Intent intent = new Intent(mActivity, DetailActivity.class);
+            intent.putExtra(EXTRA_ARTICLE_URL, mArticles.get(position).getWebUrl());
+            startActivity(intent);
         });
 
-        query("Clinton", null, null, null, null, null);
+        //query("Clinton", null, null, null, null, null);
     }
 
     @Override

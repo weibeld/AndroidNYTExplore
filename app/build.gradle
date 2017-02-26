@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
 
 android {
     compileSdkVersion 25
@@ -21,6 +22,12 @@ android {
     // Enable Data Binding Library
     dataBinding {
         enabled = true
+    }
+
+    // Required for the Retrolambda plugin
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 

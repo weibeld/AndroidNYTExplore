@@ -38,14 +38,11 @@ public class ApiServiceSingleton {
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
         // Append api-key parameter to every query
-        Interceptor apiKeyInterceptor = new Interceptor() {
-            @Override
-            public Response intercept(Chain chain) throws IOException {
-                Request request = chain.request();
-                HttpUrl url = request.url().newBuilder().addQueryParameter("api-key", ApiService.API_KEY).build();
-                request = request.newBuilder().url(url).build();
-                return chain.proceed(request);
-            }
+        Interceptor apiKeyInterceptor = chain -> {
+            Request request = chain.request();
+            HttpUrl url = request.url().newBuilder().addQueryParameter("api-key", ApiService.API_KEY).build();
+            request = request.newBuilder().url(url).build();
+            return chain.proceed(request);
         };
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()

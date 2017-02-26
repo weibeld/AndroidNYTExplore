@@ -24,9 +24,9 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Article");
+        getSupportActionBar().setTitle(R.string.title_detail_activity);
 
-        mUrl = getIntent().getStringExtra(getString(R.string.EXTRA_ARTICLE_URL));
+        mUrl = getIntent().getStringExtra(MainActivity.EXTRA_ARTICLE_URL);
 
         b = DataBindingUtil.setContentView(this, R.layout.activity_detail);
 
