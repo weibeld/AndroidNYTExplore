@@ -1,22 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        >
 
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:text="@string/dialog_title"
-            />
+
 
         <ScrollView
             android:layout_width="match_parent"
@@ -25,8 +11,22 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="4dp"
+                >
+
+                <TextView
+                    android:id="@+id/tvTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:text="@string/dialog_title"
+                    />
 
                 <!-- ******************************************************************************* -->
                 <!-- Begin Date                                                                      -->
@@ -107,9 +107,31 @@
                 </RadioGroup>
 
 
+                <!-- ******************************************************************************* -->
+                <!-- News desk categories                                                            -->
+                <!-- ******************************************************************************* -->
+                <LinearLayout
+                    style="@style/FilterDialogSubtitleLayout">
+                    <CheckBox
+                        android:id="@+id/cbNewsDesk"
+                        style="@style/FilterDialogCheckBox"
+                        />
+                    <TextView
+                        android:id="@+id/tvNewsDesk"
+                        style="@style/FilterDialogSubtitle"
+                        android:text="Category"
+                        />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/llNewsDeskContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="32dp"
+                    />
+
             </LinearLayout>
 
         </ScrollView>
 
-    </LinearLayout>
 </layout>

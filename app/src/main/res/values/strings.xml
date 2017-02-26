@@ -14,4 +14,124 @@
     <string name="pref_key_end_date">pref_end_date</string>
     <string name="pref_key_sort_order">pref_sort_order</string>
     <string name="title_detail_activity">Read Article</string>
+
+    <string-array name="news_desk_values_test">
+        <item>Adventure Sports</item>
+        <item>Arts &amp; Leisure</item>
+        <item>Arts</item>
+        <item>Automobiles</item>
+    </string-array>
+
+    <string-array name="news_desk_values">
+        <item>Adventure Sports</item>
+        <item>Arts &amp; Leisure</item>
+        <item>Arts</item>
+        <item>Automobiles</item>
+        <item>Blogs</item>
+        <item>Books</item>
+        <item>Booming</item>
+        <item>Business Day</item>
+        <item>Business</item>
+        <item>Cars</item>
+        <item>Circuits</item>
+        <item>Classifieds</item>
+        <item>Connecticut</item>
+        <item>Crosswords &amp; Games</item>
+        <item>Culture</item>
+        <item>DealBook</item>
+        <item>Dining</item>
+        <item>Editorial</item>
+        <item>Education</item>
+        <item>Energy</item>
+        <item>Entrepreneurs</item>
+        <item>Environment</item>
+        <item>Escapes</item>
+        <item>Fashion &amp; Style</item>
+        <item>Fashion</item>
+        <item>Favorites</item>
+        <item>Financial</item>
+        <item>Flight</item>
+        <item>Food</item>
+        <item>Foreign</item>
+        <item>Generations</item>
+        <item>Giving</item>
+        <item>Global Home</item>
+        <item>Health &amp; Fitness</item>
+        <item>Health</item>
+        <item>Home &amp; Garden</item>
+        <item>Home</item>
+        <item>Jobs</item>
+        <item>Key</item>
+        <item>Letters</item>
+        <item>Long Island</item>
+        <item>Magazine</item>
+        <item>Market Place</item>
+        <item>Media</item>
+        <item>Men\'s Health</item>
+        <item>Metro</item>
+        <item>Metropolitan</item>
+        <item>Movies</item>
+        <item>Museums</item>
+        <item>National</item>
+        <item>Nesting</item>
+        <item>Obits</item>
+        <item>Obituaries</item>
+        <item>Obituary</item>
+        <item>OpEd</item>
+        <item>Opinion</item>
+        <item>Outlook</item>
+        <item>Personal Investing</item>
+        <item>Personal Tech</item>
+        <item>Play</item>
+        <item>Politics</item>
+        <item>Regionals</item>
+        <item>Retail</item>
+        <item>Retirement</item>
+        <item>Science</item>
+        <item>Small Business</item>
+        <item>Society</item>
+        <item>Sports</item>
+        <item>Style</item>
+        <item>Sunday Business</item>
+        <item>Sunday Review</item>
+        <item>Sunday Styles</item>
+        <item>T Magazine</item>
+        <item>T Style</item>
+        <item>Technology</item>
+        <item>Teens</item>
+        <item>Television</item>
+        <item>The Arts</item>
+        <item>The Business of Green</item>
+        <item>The City Desk</item>
+        <item>The City</item>
+        <item>The Marathon</item>
+        <item>The Millennium</item>
+        <item>The Natural World</item>
+        <item>The Upshot</item>
+        <item>The Weekend</item>
+        <item>The Year in Pictures</item>
+        <item>Theater</item>
+        <item>Then &amp; Now</item>
+        <item>Thursday Styles</item>
+        <item>Times Topics</item>
+        <item>Travel</item>
+        <item>U.S.</item>
+        <item>Universal</item>
+        <item>Upshot</item>
+        <item>UrbanEye</item>
+        <item>Vacation</item>
+        <item>Washington</item>
+        <item>Wealth</item>
+        <item>Weather</item>
+        <item>Week in Review</item>
+        <item>Week</item>
+        <item>Weekend</item>
+        <item>Westchester</item>
+        <item>Wireless Living</item>
+        <item>Women\'s Health</item>
+        <item>Working</item>
+        <item>Workplace</item>
+        <item>World</item>
+        <item>Your Money</item>
+    </string-array>
 </resources>

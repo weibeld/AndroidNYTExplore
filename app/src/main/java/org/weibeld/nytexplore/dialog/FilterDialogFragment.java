@@ -45,6 +45,7 @@ public class FilterDialogFragment extends DialogFragment {
         setupBeginEndDate(b.cbEndDate, b.tvEndDate, b.etEndDate, TAG_END_DATE, getString(R.string.pref_key_end_date));
 
         setupSortOrder();
+        setupNewsDesk();
 
         final AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setView(b.getRoot())
@@ -123,6 +124,15 @@ public class FilterDialogFragment extends DialogFragment {
 
         // Create the AlertDialog object and return it
         return dialog;
+    }
+
+    private void setupNewsDesk() {
+        String[] array = getResources().getStringArray(R.array.news_desk_values);
+        for (int i = 0; i < array.length; i++) {
+            CheckBox checkBox = new CheckBox(getActivity());
+            checkBox.setText(array[i]);
+            b.llNewsDeskContainer.addView(checkBox);
+        }
     }
 
     private void setupSortOrder() {
