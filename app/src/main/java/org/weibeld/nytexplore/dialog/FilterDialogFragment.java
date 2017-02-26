@@ -15,6 +15,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.weibeld.nytexplore.MainActivity;
 import org.weibeld.nytexplore.R;
 import org.weibeld.nytexplore.databinding.DialogFilterBinding;
 import org.weibeld.nytexplore.util.MyDate;
@@ -69,6 +70,11 @@ public class FilterDialogFragment extends DialogFragment {
 
                     if (!saveSortOrder())
                         return;
+
+                    // Tint icon of the "Filter" menu item if and only if any filters are set
+                    MainActivity a = (MainActivity) getActivity();
+                    if (a.isAnyFilterSet()) a.tintFilterIcon(true);
+                    else a.tintFilterIcon(false);
 
                     dialog.dismiss();
                 }

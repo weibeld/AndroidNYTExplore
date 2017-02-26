@@ -6,6 +6,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -57,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
     // API requests
     String mQuery;
 
+    // UI
+    MenuItem mFilterMenuItem;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,7 +104,30 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         setupSearchView(menu);
+        // Save reference to the "Filter" menu item and tint icon if any filters are set
+        mFilterMenuItem = menu.findItem(R.id.action_filter);
+        if (isAnyFilterSet()) tintFilterIcon(true);
         return super.onCreateOptionsMenu(menu);
+    }
+
+
+    // Change color of filter menu icon to accent color (addTint=true) or white (addTint=false)
+    public void tintFilterIcon(boolean addTint) {
+        Drawable drawable = mFilterMenuItem.getIcon();
+        if (drawable != null) {
+            drawable.mutate();
+            if (addTint)
+                drawable.setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
+            else
+                drawable.setColorFilter(null);
+        }
+    }
+
+    // Return true if any filter is enabled in the SharedPreferences, and false otherwise
+    public boolean isAnyFilterSet() {
+        return !mPref.getString(getString(R.string.pref_key_begin_date), "").isEmpty()
+            || !mPref.getString(getString(R.string.pref_key_end_date), "").isEmpty()
+            || !mPref.getString(getString(R.string.pref_key_sort_order), "").isEmpty();
     }
 
     @Override

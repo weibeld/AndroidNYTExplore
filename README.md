@@ -42,6 +42,8 @@ The following **bonus** features are implemented:
 The following **additional** features are implemented:
 
 * [ ] List anything else that you can get done to improve the app functionality!
+* [x] Basic validation of user input in dialog for setting filters
+* [x] Inform user about any applied filters by changing the colour of the "Filter" menu item icon to the accent colour if any filters are set, and to default white otherwise
 
 ## Video Walkthrough
 

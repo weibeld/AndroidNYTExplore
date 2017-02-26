@@ -14,6 +14,7 @@ import org.weibeld.nytexplore.util.MyDate;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+// TODO: set earliest possible date to 1851 and (latest possible date to today)
 /**
  * Simple data picker dialog.
  */
