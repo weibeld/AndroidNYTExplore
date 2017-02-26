@@ -1,9 +1,14 @@
 package org.weibeld.nytexplore;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -13,11 +18,15 @@ import org.weibeld.nytexplore.databinding.ActivityDetailBinding;
 public class DetailActivity extends AppCompatActivity {
 
     ActivityDetailBinding b;
+    String mUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Article");
+
+        mUrl = getIntent().getStringExtra(getString(R.string.EXTRA_ARTICLE_URL));
 
         b = DataBindingUtil.setContentView(this, R.layout.activity_detail);
 
@@ -31,7 +40,7 @@ public class DetailActivity extends AppCompatActivity {
                 super.onPageFinished(view, url);
             }
         });
-        b.webView.loadUrl(getIntent().getStringExtra(getString(R.string.EXTRA_ARTICLE_URL)));
+        b.webView.loadUrl(mUrl);
     }
 
     // Make navigation button in app bar behave like the device back button, i.e. return to previous
@@ -58,5 +67,20 @@ public class DetailActivity extends AppCompatActivity {
 
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.detail, menu);
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, mUrl);
+
+        MenuItem item = menu.findItem(R.id.menu_item_share);
+        ShareActionProvider p = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+        p.setShareIntent(intent);
+
+        return super.onCreateOptionsMenu(menu);
     }
 }
