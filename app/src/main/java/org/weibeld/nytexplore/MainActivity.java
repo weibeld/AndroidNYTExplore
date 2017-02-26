@@ -3,6 +3,7 @@ package org.weibeld.nytexplore;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -15,12 +16,15 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import org.weibeld.nytexplore.adapter.ArticleAdapter;
 import org.weibeld.nytexplore.api.ApiServiceSingleton;
 import org.weibeld.nytexplore.databinding.ActivityMainBinding;
 import org.weibeld.nytexplore.decor.SpacesItemDecoration;
 import org.weibeld.nytexplore.dialog.FilterDialogFragment;
+import org.weibeld.nytexplore.listener.EndlessRecyclerViewScrollListener;
+import org.weibeld.nytexplore.listener.RecyclerViewItemClickSupport;
 import org.weibeld.nytexplore.model.ApiResponse;
 import org.weibeld.nytexplore.model.Doc;
 import org.weibeld.nytexplore.util.Util;
@@ -81,7 +85,16 @@ public class MainActivity extends AppCompatActivity {
         b.recyclerView.addItemDecoration(new SpacesItemDecoration(16));
         b.recyclerView.addOnScrollListener(mScrollListener);
 
-        //query("Clinton", null, null, null, null, null);
+        RecyclerViewItemClickSupport.addTo(b.recyclerView).setOnItemClickListener(new RecyclerViewItemClickSupport.OnItemClickListener() {
+            @Override
+            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                Intent intent = new Intent(mActivity, DetailActivity.class);
+                intent.putExtra(getString(R.string.EXTRA_ARTICLE_URL), mArticles.get(position).getWebUrl());
+                startActivity(intent);
+            }
+        });
+
+        query("Clinton", null, null, null, null, null);
     }
 
     @Override
