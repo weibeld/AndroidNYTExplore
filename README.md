@@ -1,8 +1,8 @@
-# Project 2 - *Name of App Here*
+# Project 2 - *NYT Explore*
 
-**Name of your app** is an android app that allows a user to search for articles on web using simple filters. The app utilizes [New York Times Search API](http://developer.nytimes.com/docs/read/article_search_api_v2).
+**NYT Explore** is an Android app that allows a user to search for articles on web using simple filters. The app utilizes [New York Times Search API](http://developer.nytimes.com/docs/read/article_search_api_v2).
 
-Time spent: **X** hours spent in total
+Time spent: **24** hours spent in total
 
 ## User Stories
 
@@ -12,8 +12,8 @@ The following **required** functionality is completed:
 * [x] User can click on "settings" which allows selection of **advanced search options** to filter results
 * [x] User can configure advanced search filters such as:
   * [x] Begin Date (using a date picker)
-  * [ ] News desk values (Arts, Fashion & Style, Sports)
-  * [ ] Sort order (oldest or newest)
+  * [x] News desk values (Arts, Fashion & Style, Sports)
+  * [x] Sort order (oldest or newest)
 * [x] Subsequent searches have any filters applied to the search results
 * [x] User can tap on any article in results to view the contents in an embedded browser.
 * [x] User can **scroll down to see more articles**. The maximum number of articles is limited by the API search.
@@ -41,15 +41,15 @@ The following **bonus** features are implemented:
 
 The following **additional** features are implemented:
 
-* [ ] List anything else that you can get done to improve the app functionality!
 * [x] Basic validation of user input in dialog for setting filters
 * [x] Inform user about any applied filters by changing the colour of the "Filter" menu item icon to the accent colour if any filters are set, and to default white otherwise
+* [x] Use of method references to pass methods as parameters to other methods
 
 ## Video Walkthrough
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+![Video Walkthrough](assets/walkthrough.gif)
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
@@ -57,14 +57,23 @@ GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
 Describe any challenges encountered while building the app.
 
+- The NYTimes API is quite slow
+- The rate limits of the NYTimes API are very low: 1000 calls per day, and only 1 call per second
+- There is an inconsistency in the NYTimes API: the `byline` object in `docs` is supposed to be a JSON object, but sometimes it is returned as an empty JSON array.
+- Building a responsive UI like in the filter dialog took a lot of time
+
 ## Open-source libraries used
 
-- [Android Async HTTP](https://github.com/loopj/android-async-http) - Simple asynchronous HTTP requests with JSON parsing
-- [Picasso](http://square.github.io/picasso/) - Image loading and caching library for Android
+- [Glide](https://github.com/bumptech/glide) - Image loading and caching library (alternative to [Picasso](http://square.github.io/picasso/))
+- [Retrofit 2](https://square.github.io/retrofit/) - HTTP client (alternative to [android-async-http](http://loopj.com/android-async-http/))
+- [Gson](https://github.com/google/gson) - Java serialization/deserialization library that can convert Java Objects into JSON and back (used in conjunction with Retrofit)
+- [OkHttp 3](http://square.github.io/okhttp/) - HTTP & HTTP/2 client for Android (used in conjunction with Retrofit)
+- [Retrolambda](https://github.com/evant/gradle-retrolambda) - Lambda expressions and method references for Java < 8
+- [Stetho](http://facebook.github.io/stetho/) - Chrome-based debug bridge for Android, used for monitoring API calls
 
 ## License
 
-    Copyright [yyyy] [name of copyright owner]
+    Copyright 2017 Daniel Weibel
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

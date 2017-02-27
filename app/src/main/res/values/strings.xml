@@ -14,7 +14,7 @@
     <string name="pref_end_date">pref_end_date</string>
     <string name="pref_sort_order">pref_sort_order</string>
     <string name="title_detail_activity">Read Article</string>
-    <string name="pref_key_news_desk">pref_news_desk</string>
+    <string name="pref_news_desk">pref_news_desk</string>
 
     <string-array name="news_desk_values_test">
         <item>Adventure Sports</item>

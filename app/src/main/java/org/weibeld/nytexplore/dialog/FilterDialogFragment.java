@@ -150,7 +150,7 @@ public class FilterDialogFragment extends DialogFragment {
                             }
                         }
                     }
-                    e.putString(getString(R.string.pref_key_news_desk), value);
+                    e.putString(getString(R.string.pref_news_desk), value);
                 }
             });
         });
@@ -219,7 +219,7 @@ public class FilterDialogFragment extends DialogFragment {
         }
 
         // Read currently saved value (colon-separated string of categories)
-        String val = mPref.getString(getString(R.string.pref_key_news_desk), "");
+        String val = mPref.getString(getString(R.string.pref_news_desk), "");
 
         setInitialState(b.cbNewsDesk, b.newsDeskContainer, val, this::setNewsDeskInput);
 

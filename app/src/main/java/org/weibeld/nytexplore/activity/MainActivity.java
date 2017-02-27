@@ -129,8 +129,9 @@ public class MainActivity extends AppCompatActivity {
     // Return true if any filter is enabled in the SharedPreferences, and false otherwise
     public boolean isAnyFilterSet() {
         return !mPref.getString(getString(R.string.pref_begin_date), "").isEmpty()
-            || !mPref.getString(getString(R.string.pref_end_date), "").isEmpty()
-            || !mPref.getString(getString(R.string.pref_sort_order), "").isEmpty();
+                || !mPref.getString(getString(R.string.pref_end_date), "").isEmpty()
+                || !mPref.getString(getString(R.string.pref_sort_order), "").isEmpty()
+                || !mPref.getString(getString(R.string.pref_news_desk), "").isEmpty();
     }
 
     @Override
@@ -159,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
         String beginDate = nullify(mPref.getString(getString(R.string.pref_begin_date), ""));
         String endDate = nullify(mPref.getString(getString(R.string.pref_end_date), ""));
         String sortOrder = nullify(mPref.getString(getString(R.string.pref_sort_order), ""));
-        String newsDesk = nullify(mPref.getString(getString(R.string.pref_key_news_desk), ""));
+        String newsDesk = nullify(mPref.getString(getString(R.string.pref_news_desk), ""));
         String query = nullify(mQuery);
 
         // The "fq" parameter uses Lucene query syntax:
@@ -238,8 +239,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 try {
                     ArrayList<Doc> articles = (ArrayList<Doc>) response.body().getResponse().getDocs();
-                    if (articles.isEmpty())
-                        Util.toastLong(mActivity, getString(R.string.toast_no_results));
+                    if (articles.isEmpty()) {}
+                        //Util.toastLong(mActivity, getString(R.string.toast_no_results));
                     else
                         mAdapter.appendArticles(articles);
                 }
