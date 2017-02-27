@@ -15,7 +15,7 @@
             android:name="org.weibeld.nytexplore.debug.StethoOkHttpGlideModule"
             android:value="GlideModule" />
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".activity.MainActivity">
 
             <!-- Custom GlideModule to make Glide use an OkHttp client with Stetho interception -->
 
@@ -27,8 +27,8 @@
         </activity>
 
         <activity
-            android:name=".DetailActivity"
-            android:parentActivityName=".MainActivity">
+            android:name=".activity.DetailActivity"
+            android:parentActivityName=".activity.MainActivity">
         </activity>
 
     </application>

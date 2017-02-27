@@ -1,4 +1,4 @@
-package org.weibeld.nytexplore;
+package org.weibeld.nytexplore.activity;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
@@ -13,6 +13,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import org.weibeld.nytexplore.R;
 import org.weibeld.nytexplore.databinding.ActivityDetailBinding;
 
 public class DetailActivity extends AppCompatActivity {

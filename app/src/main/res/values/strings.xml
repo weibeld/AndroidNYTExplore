@@ -10,10 +10,11 @@
     <string name="dialog_title">Filters</string>
     <string name="dialog_sub_begin_date">Not older than…</string>
     <string name="dialog_sub_end_date">Not newer than…</string>
-    <string name="pref_key_begin_date">pref_begin_date</string>
-    <string name="pref_key_end_date">pref_end_date</string>
-    <string name="pref_key_sort_order">pref_sort_order</string>
+    <string name="pref_begin_date">pref_begin_date</string>
+    <string name="pref_end_date">pref_end_date</string>
+    <string name="pref_sort_order">pref_sort_order</string>
     <string name="title_detail_activity">Read Article</string>
+    <string name="pref_key_news_desk">pref_news_desk</string>
 
     <string-array name="news_desk_values_test">
         <item>Adventure Sports</item>

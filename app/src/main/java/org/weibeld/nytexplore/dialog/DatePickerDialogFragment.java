@@ -5,10 +5,11 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.TextView;
 
-import org.weibeld.nytexplore.MainActivity;
+import org.weibeld.nytexplore.activity.MainActivity;
 import org.weibeld.nytexplore.util.MyDate;
 
 import java.util.Calendar;
@@ -45,6 +46,8 @@ public class DatePickerDialogFragment extends DialogFragment implements DatePick
         TextView et = getEditText();
         et.setText(date.format3());
         et.setTag(date);
+        CheckBox cb = getCheckBox();
+        if (!cb.isChecked()) cb.setChecked(true);
     }
 
     // Called when the user cancelled the date picker dialog
@@ -59,6 +62,19 @@ public class DatePickerDialogFragment extends DialogFragment implements DatePick
                 return f.b.etBeginDate;
             case TAG_END_DATE:
                 return f.b.etEndDate;
+            default:
+                new Exception().printStackTrace();
+                return null;
+        }
+    }
+
+    private CheckBox getCheckBox() {
+        FilterDialogFragment f = (FilterDialogFragment) getActivity().getFragmentManager().findFragmentByTag(MainActivity.TAG_FILTER_DIALOG);
+        switch (getTag()) {
+            case TAG_BEGIN_DATE:
+                return f.b.cbBeginDate;
+            case TAG_END_DATE:
+                return f.b.cbEndDate;
             default:
                 new Exception().printStackTrace();
                 return null;

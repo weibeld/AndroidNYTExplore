@@ -1,4 +1,4 @@
-package org.weibeld.nytexplore;
+package org.weibeld.nytexplore.activity;
 
 import android.app.Activity;
 import android.app.DialogFragment;
@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.weibeld.nytexplore.R;
 import org.weibeld.nytexplore.adapter.ArticleAdapter;
 import org.weibeld.nytexplore.api.ApiServiceSingleton;
 import org.weibeld.nytexplore.databinding.ActivityMainBinding;
@@ -31,6 +32,8 @@ import org.weibeld.nytexplore.model.Doc;
 import org.weibeld.nytexplore.util.Util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -125,9 +128,9 @@ public class MainActivity extends AppCompatActivity {
 
     // Return true if any filter is enabled in the SharedPreferences, and false otherwise
     public boolean isAnyFilterSet() {
-        return !mPref.getString(getString(R.string.pref_key_begin_date), "").isEmpty()
-            || !mPref.getString(getString(R.string.pref_key_end_date), "").isEmpty()
-            || !mPref.getString(getString(R.string.pref_key_sort_order), "").isEmpty();
+        return !mPref.getString(getString(R.string.pref_begin_date), "").isEmpty()
+            || !mPref.getString(getString(R.string.pref_end_date), "").isEmpty()
+            || !mPref.getString(getString(R.string.pref_sort_order), "").isEmpty();
     }
 
     @Override
@@ -144,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
     // TODO: check if using ProgressBar is better
     private ProgressDialog setupProgressDialog() {
-        ProgressDialog p = new ProgressDialog(mActivity);
+        ProgressDialog p =  new ProgressDialog(mActivity);
         p.setIndeterminate(true);
         p.setMessage(getString(R.string.progress_loading));
         return p;
@@ -152,19 +155,49 @@ public class MainActivity extends AppCompatActivity {
 
     // Read filters from SharedPreferences, and construct and execute the API query
     private void loadData(int page) {
-        // Begin/end date
-        String beginDate = mPref.getString(getString(R.string.pref_key_begin_date), "");
-        String endDate = mPref.getString(getString(R.string.pref_key_end_date), "");
-        beginDate = (beginDate.isEmpty()) ? null : beginDate;
-        endDate = (endDate.isEmpty()) ? null : endDate;
-        // Sort order
-        String sortOrder = mPref.getString(getString(R.string.pref_key_sort_order), "");
-        sortOrder = (sortOrder.isEmpty()) ? null : sortOrder;
+        // Read query parameter values from SharedPreferences
+        String beginDate = nullify(mPref.getString(getString(R.string.pref_begin_date), ""));
+        String endDate = nullify(mPref.getString(getString(R.string.pref_end_date), ""));
+        String sortOrder = nullify(mPref.getString(getString(R.string.pref_sort_order), ""));
+        String newsDesk = nullify(mPref.getString(getString(R.string.pref_key_news_desk), ""));
+        String query = nullify(mQuery);
 
-        // News desk format:
-        // fq=news_desk:("Education"%20"Health") --> no query ("q") necessary)
+        // The "fq" parameter uses Lucene query syntax:
+        //     field:value
+        // If the value contains whitespace, enclose it in double quotes:
+        //     field:"my value"
+        // For specifying multiple values for a field enclose them in parentheses:
+        //     field:("value 1" "value 2")
+        // The default operator for multiple values is OR. It's possible to specify AND:
+        //     field:("value 1" AND "value 2")
+        // Multiple fields can be specified by separating them with a space:
+        //     field1:("value 1" "value_2") field2:"value 3"
+        // The default operator for multiple fields is OR. It's possible to specify AND:
+        //     field1:("value 1" "value 2") AND field2:"value 3"
+        //
+        // Notes:
+        //   - If an invalid token is submitted (e.g. invalid field name or news_desk category),
+        //     then it is just ignored (no error returned). An error is only returned if the
+        //     Lucene query syntax is invalid.
+        //   - In general, the "q" parameter is optional (might make sense if, for example,
+        //     searching all the articles of today with begin_date=...&end_date=...)
+        if (newsDesk != null) {
+            ArrayList<String> a = new ArrayList<>(Arrays.asList(newsDesk.split(":")));
+            Iterator itr = a.iterator();
+            newsDesk = "news_desk:(";
+            while (itr.hasNext()) {
+                newsDesk += "\"" + itr.next() + "\"";
+                if (itr.hasNext()) newsDesk += " ";
+                else newsDesk += ")";
+            }
+        }
 
-        query(mQuery, null, beginDate, endDate, sortOrder, page);
+        query(query, newsDesk, beginDate, endDate, sortOrder, page);
+    }
+
+    // Return null for an empty string, and the original string for an non-empty string
+    private String nullify(String str) {
+        return (str.isEmpty()) ? null : str;
     }
 
     private void setupSearchView(Menu menu) {

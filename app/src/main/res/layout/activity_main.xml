@@ -11,7 +11,7 @@
         android:paddingBottom="4dp"
         android:paddingLeft="4dp"
         android:paddingRight="4dp"
-        tools:context="org.weibeld.nytexplore.MainActivity">
+        tools:context="org.weibeld.nytexplore.activity.MainActivity">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView"

@@ -15,11 +15,14 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.weibeld.nytexplore.MainActivity;
 import org.weibeld.nytexplore.R;
+import org.weibeld.nytexplore.activity.MainActivity;
 import org.weibeld.nytexplore.databinding.DialogFilterBinding;
 import org.weibeld.nytexplore.util.MyDate;
 import org.weibeld.nytexplore.util.Util;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Created by dw on 23/02/17.
@@ -32,18 +35,16 @@ public class FilterDialogFragment extends DialogFragment {
 
     DialogFilterBinding b;
     SharedPreferences mPref;
+    ArrayList<CheckBox> mNewsDeskCheckboxes;
 
-    // TODO: add filters "sort order" (oldest|newest|none) and "news desk" (multi-selection)
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         mPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-
         b = DataBindingUtil.inflate(LayoutInflater.from(getActivity()), R.layout.dialog_filter, null, false);
 
-        setupBeginEndDate(b.cbBeginDate, b.tvBeginDate, b.etBeginDate, TAG_BEGIN_DATE, getString(R.string.pref_key_begin_date));
-        setupBeginEndDate(b.cbEndDate, b.tvEndDate, b.etEndDate, TAG_END_DATE, getString(R.string.pref_key_end_date));
-
+        setupBeginDate();
+        setupEndDate();
         setupSortOrder();
         setupNewsDesk();
 
@@ -52,25 +53,44 @@ public class FilterDialogFragment extends DialogFragment {
                 .setPositiveButton(R.string.save, null)
                 .setNegativeButton(R.string.cancel, (dialog1, id) -> {}).create();
 
-        // Override the setPositiveButton method in order to prevent automatic dismissal of dialog
+        // Override setPositiveButton in order to prevent automatic dismissal of dialog
         dialog.setOnShowListener(d -> {
             Button button = ((AlertDialog) d).getButton(AlertDialog.BUTTON_POSITIVE);
             button.setOnClickListener(new View.OnClickListener() {
-
-                SharedPreferences.Editor mPrefEdit;
                 @Override
                 public void onClick(View view) {
-                    // Read all values and save in SharedPreferences
-                    mPrefEdit = mPref.edit();
-
-                    if (!saveDate(b.cbBeginDate, b.etBeginDate, getString(R.string.pref_key_begin_date)))
+                    if (!isBeginDateInputValid()) {
+                        makeVisible(b.etBeginDate);
+                        b.etBeginDate.requestFocus();
+                        Util.toast(getActivity(), "Please select a begin date");
                         return;
-
-                    if (!saveDate(b.cbEndDate, b.etEndDate, getString(R.string.pref_key_end_date)))
+                    }
+                    if (!isEndDateInputValid()) {
+                        makeVisible(b.etEndDate);
+                        b.etEndDate.requestFocus();
+                        Util.toast(getActivity(), "Please select an end date");
                         return;
-
-                    if (!saveSortOrder())
+                    }
+                    if (!isSortOrderInputValid()) {
+                        makeVisible(b.rgSortOrder);
+                        b.rgSortOrder.requestFocus();
+                        Util.toast(getActivity(), "Please select a sort order");
                         return;
+                    }
+                    if (!isNewsDeskInputValid()) {
+                        makeVisible(b.newsDeskContainer);
+                        b.newsDeskContainer.requestFocus();
+                        Util.toast(getActivity(), "Please select at least one category");
+                        return;
+                    }
+
+                    // Save the current value for each filter in the SharedPreferences
+                    SharedPreferences.Editor e = mPref.edit();
+                    writeBeginDateValue(e);
+                    writeEndDateValue(e);
+                    writeSortOrderValue(e);
+                    writeNewsDeskValue(e);
+                    e.apply();
 
                     // Tint icon of the "Filter" menu item if and only if any filters are set
                     MainActivity a = (MainActivity) getActivity();
@@ -80,164 +100,271 @@ public class FilterDialogFragment extends DialogFragment {
                     dialog.dismiss();
                 }
 
-                // Save begin or end date as a string in the SharedPreferences (format YYYYMMDD
-                // or empty string if this filter is not set).
-                private boolean saveDate(CheckBox cb, EditText et, String prefKey) {
-                    if (cb.isChecked()) {
-                        if (et.getTag() == null) {
-                            et.requestFocus();
-                            Util.toast(getActivity(), "Please select a date.");
-                            return false;
-                        }
-                        MyDate beginDate = (MyDate) et.getTag();
-                        mPrefEdit.putString(prefKey, beginDate.format4());
+                private boolean isBeginDateInputValid() {
+                    return !(b.cbBeginDate.isChecked() && b.etBeginDate.getTag() == null);
+                }
+                private boolean isEndDateInputValid() {
+                    return !(b.cbEndDate.isChecked() && b.etEndDate.getTag() == null);
+                }
+                private boolean isSortOrderInputValid() {
+                    return !(b.cbSortOrder.isChecked() && !b.rbSortOrderNewest.isChecked() && !b.rbSortOrderOldest.isChecked());
+                }
+                private boolean isNewsDeskInputValid() {
+                    if (b.cbNewsDesk.isChecked()) {
+                        for (CheckBox cb : mNewsDeskCheckboxes)
+                            if (cb.isChecked()) return true;
+                        return false;
                     }
-                    else {
-                        mPrefEdit.putString(prefKey, "");
-                    }
-                    mPrefEdit.apply();
                     return true;
                 }
-
-                private boolean saveSortOrder() {
+                
+                private void writeBeginDateValue(SharedPreferences.Editor e) {
+                    String value = "";
+                    if (b.cbBeginDate.isChecked())
+                        value = ((MyDate) b.etBeginDate.getTag()).format4();
+                    e.putString(getString(R.string.pref_begin_date), value);
+                }
+                private void writeEndDateValue(SharedPreferences.Editor e) {
+                    String value = "";
+                    if (b.cbEndDate.isChecked())
+                        value = ((MyDate) b.etEndDate.getTag()).format4();
+                    e.putString(getString(R.string.pref_end_date), value);
+                }
+                private void writeSortOrderValue(SharedPreferences.Editor e) {
+                    String value = "";
                     if (b.cbSortOrder.isChecked()) {
-                        if (!b.rbSortOrderNewest.isChecked() && !b.rbSortOrderOldest.isChecked()) {
-                            b.rgSortOrder.requestFocus();
-                            Util.toast(getActivity(), "Please select a sort order.");
-                            return false;
+                        int id = b.rgSortOrder.getCheckedRadioButtonId();
+                        value = b.rgSortOrder.findViewById(id).getTag().toString();
+                    }
+                    e.putString(getString(R.string.pref_sort_order), value);
+                }
+                private void writeNewsDeskValue(SharedPreferences.Editor e) {
+                    String value = "";
+                    if (b.cbNewsDesk.isChecked()) {
+                        Iterator itr = mNewsDeskCheckboxes.iterator();
+                        while (itr.hasNext()) {
+                            CheckBox cb = (CheckBox) itr.next();
+                            if (cb.isChecked()) {
+                                value += cb.getTag();
+                                if (itr.hasNext()) value += ":";
+                            }
                         }
-                        String val = "";
-                        if (b.rbSortOrderNewest.isChecked())
-                            val = b.rbSortOrderNewest.getTag().toString();
-                        else if(b.rbSortOrderOldest.isChecked())
-                            val = b.rbSortOrderOldest.getTag().toString();
-                        mPrefEdit.putString(getString(R.string.pref_key_sort_order), val);
                     }
-                    else {
-                        mPrefEdit.putString(getString(R.string.pref_key_sort_order), "");
-                    }
-                    mPrefEdit.apply();
-                    return true;
+                    e.putString(getString(R.string.pref_key_news_desk), value);
                 }
             });
         });
 
-        // Create the AlertDialog object and return it
+        // Return the AlertDialog
         return dialog;
     }
 
-    private void setupNewsDesk() {
-        String[] array = getResources().getStringArray(R.array.news_desk_values);
-        for (int i = 0; i < array.length; i++) {
-            CheckBox checkBox = new CheckBox(getActivity());
-            checkBox.setText(array[i]);
-            b.llNewsDeskContainer.addView(checkBox);
-        }
+    /*--------------------------------------------------------------------------------------------*
+     * Shorthand methods
+     *--------------------------------------------------------------------------------------------*/
+    private void setupBeginDate() {
+        // Make EditText non-editable
+        b.etBeginDate.setKeyListener(null);
+        // Read current value for this filter from SharedPreferences
+        String val = mPref.getString(getString(R.string.pref_begin_date), "");
+        setInitialState(b.cbBeginDate, b.etBeginDate, val, this::setBeginDateInput);
+        setCheckBoxListener(b.cbBeginDate, b.etBeginDate, this::showDatePickerBeginDateCond, this::clearBeginDateInput);
+        setTitleListener(b.tvBeginDate, b.cbBeginDate, b.etBeginDate);
+        setCompoundDrawableListener(b.etBeginDate, this::showDatePickerBeginDate);
+    }
+
+    private void setupEndDate() {
+        // Make EditText non-editable
+        b.etEndDate.setKeyListener(null);
+        // Read current value for this filter from SharedPreferences
+        String val = mPref.getString(getString(R.string.pref_end_date), "");
+        setInitialState(b.cbEndDate, b.etEndDate, val, this::setEndDateInput);
+        setCheckBoxListener(b.cbEndDate, b.etEndDate, this::showDatePickerEndDateCond, this::clearEndDateInput);
+        setTitleListener(b.tvEndDate, b.cbEndDate, b.etEndDate);
+        setCompoundDrawableListener(b.etEndDate, this::showDatePickerEndDate);
     }
 
     private void setupSortOrder() {
-
-        // Associate a value with each radio button (the value used for the API call)
+        // Associate a value with each radio button (value for the begin_date end_date API param)
         b.rbSortOrderNewest.setTag("newest");
         b.rbSortOrderOldest.setTag("oldest");
 
-        // Read current value for this filter from SharedPreferences
-        String val = mPref.getString(getString(R.string.pref_key_sort_order), "");
+        // Read currently saved value from SharedPreferences
+        String val = mPref.getString(getString(R.string.pref_sort_order), "");
 
-        // Set initial state of CheckBox
-        if (val.isEmpty()) {
-            b.cbSortOrder.setChecked(false);
-            b.rgSortOrder.setVisibility(View.GONE);
-        }
-        else {
-            b.cbSortOrder.setChecked(true);
-            b.rgSortOrder.setVisibility(View.VISIBLE);
-            b.rbSortOrderNewest.setChecked(val.equals(b.rbSortOrderNewest.getTag()));
-            b.rbSortOrderOldest.setChecked(val.equals(b.rbSortOrderOldest.getTag()));
-        }
+        // Set initial state of widgets
+        setInitialState(b.cbSortOrder, b.rgSortOrder, val, this::setSortOrderInput);
 
-        // Set up check box listener, show RadioGroup if checked
-        b.cbSortOrder.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                b.rgSortOrder.setVisibility(View.VISIBLE);
-                b.rgSortOrder.requestFocus();
-            }
-            else {
-                b.rgSortOrder.setVisibility(View.GONE);
-                b.rbSortOrderOldest.setChecked(false);
-                b.rbSortOrderNewest.setChecked(false);
-            }
+        setCheckBoxListener(b.cbSortOrder, b.rgSortOrder, null, this::clearSortOrderInput);
+        setTitleListener(b.tvSortOrder, b.cbSortOrder, b.rgSortOrder);
+        // Check checkbox if any of the radio buttons is selected
+        b.rbSortOrderNewest.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked && !b.cbSortOrder.isChecked()) b.cbSortOrder.setChecked(true);
         });
-
-        // Check/uncheck checkbox when title to the right of it is clicked
-        b.tvSortOrder.setOnClickListener(v -> {
-            if (b.cbSortOrder.isChecked())
-                toggleVisibility(b.rgSortOrder);
-//            else
-//                b.cbSortOrder.toggle();
+        b.rbSortOrderOldest.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked && !b.cbSortOrder.isChecked()) b.cbSortOrder.setChecked(true);
         });
-
     }
 
-    private void setupBeginEndDate(final CheckBox cb, TextView tv, final EditText et, final String tag, String prefKey) {
+    private void setupNewsDesk() {
+        // Add a checkbox for each news_desk category to the LinearLayout container
+        mNewsDeskCheckboxes = new ArrayList<>();
+        String[] a = getResources().getStringArray(R.array.news_desk_values);
+        for (int i = 0; i < a.length; i++) {
+            CheckBox cb = new CheckBox(getActivity());
+            cb.setText(a[i]);
+            cb.setTag(a[i]);
+            b.newsDeskContainer.addView(cb);
+            mNewsDeskCheckboxes.add(cb);
+        }
 
-        // Make EditText non-editable
-        et.setKeyListener(null);
+        // Read currently saved value (colon-separated string of categories)
+        String val = mPref.getString(getString(R.string.pref_key_news_desk), "");
 
-        // Read current value for this filter from SharedPreferences
-        String val = mPref.getString(prefKey, "");
+        setInitialState(b.cbNewsDesk, b.newsDeskContainer, val, this::setNewsDeskInput);
 
-        // Set initial states of CheckBox and EditText
-        if (val.isEmpty()) {
+        // Set up OnCheckedChangeListener for check box
+        setCheckBoxListener(b.cbNewsDesk, b.newsDeskContainer, null, this::clearNewsDeskInput);
+        // Set up OnClickListener for title TextView
+        setTitleListener(b.tvNewsDesk, b.cbNewsDesk, b.newsDeskContainer);
+        // Check filter checkbox if any of the category check boxes is checked
+        for (CheckBox cb : mNewsDeskCheckboxes) {
+            cb.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked && !b.cbNewsDesk.isChecked()) b.cbNewsDesk.setChecked(true);
+            });
+        }
+    }
+
+
+
+    
+    /*--------------------------------------------------------------------------------------------*
+     * Listener setup methods
+     *--------------------------------------------------------------------------------------------*/
+    
+    private void setInitialState(CheckBox cb, View v, String value, MyFunc1<String> runIfFilterActive) {
+        if (value.isEmpty()) {
             cb.setChecked(false);
-            et.setVisibility(View.GONE);
+            v.setVisibility(View.GONE);
         }
         else {
             cb.setChecked(true);
-            et.setVisibility(View.VISIBLE);
-            MyDate date = new MyDate(val);
-            et.setText(date.format3());
-            et.setTag(date);
+            v.setVisibility(View.VISIBLE);
+            runIfFilterActive.run(value);
         }
+    }
 
-        // Detect clicks on the right compound drawable of EditText. If clicked, show date picker
+    private void setCheckBoxListener(CheckBox cb, View v, MyFunc0 onCheck, MyFunc0 onUncheck) {
+        cb.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                makeVisible(v);
+                v.requestFocus();
+                if (onCheck != null) onCheck.run();
+            }
+            else {
+                if (onUncheck != null) onUncheck.run();
+            }
+        });
+    }
+
+    private void setTitleListener(TextView tv, CheckBox cb, View v) {
+        tv.setOnClickListener(view -> {
+            toggleVisibility(v);
+            if (v.getVisibility() == View.VISIBLE) {
+                v.requestFocus();
+            }
+        });
+    }
+
+    private void setCompoundDrawableListener(EditText et, MyFunc0 onClick) {
         et.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 int textFieldWidth = et.getWidth();
                 int iconWidth = et.getCompoundDrawables()[2].getBounds().width();
                 if (event.getX() >= textFieldWidth - iconWidth) {
                     et.requestFocus();
-                    showDatePicker(tag);
+                    onClick.run();
                 }
             }
             return false;
         });
-
-        // Set up check box listener, show EditText if checked
-        cb.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                showDatePicker(tag);
-                et.setVisibility(View.VISIBLE);
-                et.requestFocus();
-
-            }
-            else {
-                // Make sure the EditText ha no date associated anymore
-                et.setTag(null);
-                et.setText("");
-                et.setVisibility(View.GONE);
-            }
-        });
-
-        // Check/uncheck checkbox when title to the right of it is clicked
-        tv.setOnClickListener(v -> {
-            if (cb.isChecked())
-                toggleVisibility(et);
-//            else
-//                cb.toggle();
-        });
     }
 
+    
+    /*--------------------------------------------------------------------------------------------*
+     * Functional interface methods
+     *--------------------------------------------------------------------------------------------*/
+    
+    private void clearBeginDateInput() {
+        b.etBeginDate.setTag(null);
+        b.etBeginDate.setText("");
+    }
+    private void clearEndDateInput() {
+        b.etEndDate.setTag(null);
+        b.etEndDate.setText("");
+    }
+    private void clearSortOrderInput() {
+        b.rbSortOrderOldest.setChecked(false);
+        b.rbSortOrderNewest.setChecked(false);
+    }
+    private void clearNewsDeskInput() {
+        for (CheckBox cb : mNewsDeskCheckboxes) {
+            cb.setChecked(false);
+        }
+    }
+    private void setBeginDateInput(String value) {
+        MyDate date = new MyDate(value);
+        b.etBeginDate.setText(date.format3());
+        b.etBeginDate.setTag(date);
+    }
+    private void setEndDateInput(String value) {
+        MyDate date = new MyDate(value);
+        b.etEndDate.setText(date.format3());
+        b.etEndDate.setTag(date);
+    }
+    private void setSortOrderInput(String value) {
+        b.rbSortOrderNewest.setChecked(value.equals(b.rbSortOrderNewest.getTag()));
+        b.rbSortOrderOldest.setChecked(value.equals(b.rbSortOrderOldest.getTag()));
+    }
+    private void setNewsDeskInput(String value) {
+        String[] categories = value.split(":");
+        for (String category : categories) {
+            CheckBox cb = (CheckBox) b.newsDeskContainer.findViewWithTag(category);
+            cb.setChecked(true);
+        }
+    }
+    private void showDatePickerBeginDateCond() {
+        if (b.etBeginDate.getTag() == null) showDatePickerBeginDate();
+    }
+    private void showDatePickerEndDateCond() {
+        if (b.etEndDate.getTag() == null) showDatePickerEndDate();
+    }
+    private void showDatePickerBeginDate() {
+            (new DatePickerDialogFragment()).show(getFragmentManager(), TAG_BEGIN_DATE);
+    }
+    private void showDatePickerEndDate() {
+            (new DatePickerDialogFragment()).show(getFragmentManager(), TAG_END_DATE);
+    }
+
+    
+    /*--------------------------------------------------------------------------------------------*
+     * Functional interfaces
+     *--------------------------------------------------------------------------------------------*/
+    
+    @FunctionalInterface
+    interface MyFunc0 {
+        void run();
+    }
+    @FunctionalInterface
+    interface MyFunc1<T> {
+        void run(T t);
+    }
+
+    
+    /*--------------------------------------------------------------------------------------------*
+     * Utility methods
+     *--------------------------------------------------------------------------------------------*/
+    
     private void toggleVisibility(View v) {
         if (v.getVisibility() == View.VISIBLE)
             v.setVisibility(View.GONE);
@@ -245,7 +372,7 @@ public class FilterDialogFragment extends DialogFragment {
             v.setVisibility(View.VISIBLE);
     }
 
-    private void showDatePicker(String tag) {
-        (new DatePickerDialogFragment()).show(getFragmentManager(), tag);
+    private void makeVisible(View v) {
+        if (v.getVisibility() == View.GONE) v.setVisibility(View.VISIBLE);
     }
 }
